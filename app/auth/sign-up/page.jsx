@@ -20,7 +20,7 @@ export default function SignUpPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+          redirectTo: `https://quick-work-mu.vercel.app/auth/callback?next=/dashboard`,
         },
       })
 
@@ -152,7 +152,7 @@ function EmailSignUp() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `https://quick-work-mu.vercel.app/dashboard`,
           data: {
             full_name: fullName,
             phone: phone,
@@ -303,7 +303,7 @@ function PhoneSignUp() {
         email: tempEmail,
         password: Math.random().toString(36), // Random password
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `https://quick-work-mu.vercel.app/dashboard`,
           data: {
             full_name: fullName,
             phone: phone,
