@@ -18,7 +18,7 @@ To enable Google sign-in/sign-up functionality, you need to configure Google OAu
 3. **Configure Redirect URLs**
    Add these redirect URLs in the Google provider settings:
    ```
-   Development: http://localhost:3005/auth/callback
+   Development: http://localhost:3000/auth/callback
    Production: https://yourdomain.com/auth/callback
    ```
 
@@ -74,14 +74,39 @@ No additional environment variables are needed for Google OAuth with Supabase.
 ### Current Status
 
 ✅ **Fixed Issues:**
-- Removed demo login functionality
-- Fixed redirect URLs to go to dashboard
-- Added proper error handling for unconfigured OAuth
+- Created OAuth callback route at `/auth/callback`
+- Updated login page to use correct redirect URL
+- Updated signup page to use correct redirect URL
+- Fixed redirect URLs to go to dashboard after authentication
+- Added proper error handling for OAuth failures
 - Cleaned up the login/signup UI
+
+✅ **Technical Implementation:**
+- OAuth callback route handles code exchange for session
+- Proper error handling and logging
+- Redirect to dashboard on successful authentication
+- Fallback to login page with error message on failure
 
 ❌ **Needs Configuration:**
 - Google OAuth provider setup in Supabase dashboard
 - Google Cloud Console project with OAuth credentials
+
+### Vercel Deployment Setup
+
+For production deployment on Vercel, make sure to:
+
+1. **Update Redirect URLs in Google Console:**
+   ```
+   https://your-vercel-app.vercel.app/auth/callback
+   ```
+
+2. **Update Supabase OAuth Settings:**
+   - Add your Vercel domain to the allowed origins
+   - Verify the callback URL is: `https://mcdwkwrsmuxglgtnncym.supabase.co/auth/v1/callback`
+
+3. **Environment Variables on Vercel:**
+   - Ensure all environment variables from `.env.local` are added to Vercel
+   - Verify Supabase and Cloudinary configurations are correct
 
 ### Next Steps
 
