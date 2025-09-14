@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Plus } from "lucide-react"
 import { Chat } from "@/components/chat"
+import { DeleteJobButton } from "@/components/delete-job-button"
 import Navbar from "@/components/navbar"
 
 export default async function MyJobsPage() {
@@ -101,44 +102,59 @@ export default async function MyJobsPage() {
                 </CardContent>
               </Card>
             ) : (
-              postedJobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-                          <Badge className={getStatusColor(job.status)}>{job.status.replace("_", " ")}</Badge>
+              postedJobs.map((job) => {
+                const totalApplications = job.job_applications?.length || 0
+                const acceptedApplications = job.job_applications?.filter(app => app.status === "accepted") || []
+                const hasAcceptedApplications = acceptedApplications.length > 0
+
+                return (
+                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
+                            <Badge className={getStatusColor(job.status)}>{job.status.replace("_", " ")}</Badge>
+                          </div>
+                          <p className="text-gray-600 mb-3 line-clamp-2">{job.description}</p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <span>📍 {job.location}</span>
+                            <span>
+                              💰 Rs. {job.budget_min} - {job.budget_max}
+                            </span>
+                            <span>📅 {formatDate(job.created_at)}</span>
+                            <span>📝 {totalApplications} applications</span>
+                            {hasAcceptedApplications && (
+                              <span className="text-green-600 font-semibold">✅ {acceptedApplications.length} hired</span>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-gray-600 mb-3 line-clamp-2">{job.description}</p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <span>📍 {job.location}</span>
-                          <span>
-                            💰 Rs. {job.budget_min} - {job.budget_max}
-                          </span>
-                          <span>📅 {formatDate(job.created_at)}</span>
-                          <span>📝 {job.job_applications?.length || 0} applications</span>
+                        <div className="ml-4 text-center">
+                          <div className="text-3xl mb-2">{job.job_categories?.icon}</div>
+                          <div className="space-y-2">
+                            <Link href={`/jobs/${job.id}`}>
+                              <Button size="sm" variant="outline">
+                                View
+                              </Button>
+                            </Link>
+                            <Link href={`/jobs/${job.id}/manage`}>
+                              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                                Manage
+                              </Button>
+                            </Link>
+                            <DeleteJobButton 
+                              jobId={job.id}
+                              jobTitle={job.title}
+                              applicationCount={totalApplications}
+                              hasAcceptedApplications={hasAcceptedApplications}
+                            />
+                          </div>
                         </div>
                       </div>
-                      <div className="ml-4 text-center">
-                        <div className="text-3xl mb-2">{job.job_categories?.icon}</div>
-                        <div className="space-y-2">
-                          <Link href={`/jobs/${job.id}`}>
-                            <Button size="sm" variant="outline">
-                              View
-                            </Button>
-                          </Link>
-                          <Link href={`/jobs/${job.id}/manage`}>
-                            <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                              Manage
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                    </CardContent>
+                  </Card>
+                )
+              })
             )}
           </TabsContent>
 

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft } from "lucide-react"
 import { JobStatusManager } from "@/components/job-status-manager"
 import { JobApplicationsManager } from "@/components/job-applications-manager"
+import { DeleteJobButton } from "@/components/delete-job-button"
 import { ToastProvider } from "@/components/toast"
 import Navbar from "@/components/navbar"
 
@@ -55,6 +56,11 @@ export default async function ManageJobPage({ params }) {
       minute: "2-digit",
     })
   }
+
+  // Calculate application statistics for delete button
+  const totalApplications = applications?.length || 0
+  const acceptedApplications = applications?.filter(app => app.status === "accepted") || []
+  const hasAcceptedApplications = acceptedApplications.length > 0
 
   return (
     <ToastProvider>
@@ -131,6 +137,17 @@ export default async function ManageJobPage({ params }) {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-1">Posted</h4>
                     <p className="text-gray-700">{formatDate(job.created_at)}</p>
+                  </div>
+
+                  {/* Delete Job Section */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <h4 className="font-medium text-gray-900 mb-3">Danger Zone</h4>
+                    <DeleteJobButton 
+                      jobId={job.id}
+                      jobTitle={job.title}
+                      applicationCount={totalApplications}
+                      hasAcceptedApplications={hasAcceptedApplications}
+                    />
                   </div>
                 </CardContent>
               </Card>

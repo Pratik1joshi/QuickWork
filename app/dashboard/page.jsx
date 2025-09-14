@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { QuickDeleteButton } from "@/components/quick-delete-button"
 import Navbar from "@/components/navbar"
 
 export default async function DashboardPage({ searchParams }) {
@@ -329,13 +330,19 @@ export default async function DashboardPage({ searchParams }) {
             <div className="grid gap-6">
               {recentJobs?.map((job, index) => {
                 const jobStatus = getJobStatus(job)
+                const isMyJob = job.employer_id === user.id
                 return (
                   <Card key={job.id} className={`group hover:shadow-2xl transition-all duration-500 border-0 shadow-lg bg-white/80 backdrop-blur-sm overflow-hidden hover:-translate-y-1 ${
                     jobStatus.isFullyStaffed ? 'ring-2 ring-green-300' : ''
-                  }`}>
+                  } ${isMyJob ? 'ring-2 ring-blue-300 bg-blue-50/50' : ''}`}>
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
                     {/* Status Banner */}
+                    {isMyJob && (
+                      <div className="bg-blue-500 text-white px-4 py-2 text-center font-semibold">
+                        👑 YOUR JOB POST
+                      </div>
+                    )}
                     {jobStatus.isFullyStaffed && (
                       <div className="bg-green-500 text-white px-4 py-2 text-center font-semibold">
                         🎉 POSITION FILLED - All {jobStatus.workersNeeded} worker{jobStatus.workersNeeded !== 1 ? 's' : ''} hired!
@@ -444,11 +451,28 @@ export default async function DashboardPage({ searchParams }) {
                           year: 'numeric'
                         })}
                       </div>
-                      <Link href={`/jobs/${job.id}`}>
-                        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                          View Details →
-                        </Button>
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        {isMyJob && (
+                          <QuickDeleteButton 
+                            jobId={job.id}
+                            jobTitle={job.title}
+                            hasAcceptedApplications={jobStatus.acceptedCount > 0}
+                          />
+                        )}
+                        {isMyJob ? (
+                          <Link href={`/jobs/${job.id}/manage`}>
+                            <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                              Manage Job →
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Link href={`/jobs/${job.id}`}>
+                            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                              View Details →
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
