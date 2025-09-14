@@ -6,25 +6,39 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Trash2, AlertTriangle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { JobLifecycleManager } from "@/components/job-lifecycle-manager"
 
-export function DeleteJobButton({ jobId, jobTitle, applicationCount = 0, hasAcceptedApplications = false }) {
+export function DeleteJobButton({ 
+  jobId, 
+  jobTitle, 
+  jobStatus = "open",
+  applicationCount = 0, 
+  hasAcceptedApplications = false,
+  acceptedWorkers = []
+}) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const router = useRouter()
+
+  // If job has hired workers, show lifecycle manager instead
+  if (hasAcceptedApplications) {
+    return (
+      <JobLifecycleManager
+        jobId={jobId}
+        jobTitle={jobTitle}
+        currentStatus={jobStatus}
+        acceptedWorkers={acceptedWorkers}
+        canComplete={true}
+        canArchive={jobStatus === 'completed' || jobStatus === 'cancelled'}
+      />
+    )
+  }
 
   const handleDelete = async () => {
     setIsDeleting(true)
 
     try {
       const supabase = createClient()
-
-      // Check if there are any accepted applications
-      if (hasAcceptedApplications) {
-        alert("Cannot delete job with accepted applications. Please complete or cancel the job first.")
-        setIsDeleting(false)
-        setShowConfirmation(false)
-        return
-      }
 
       // Delete all job applications first (due to foreign key constraints)
       const { error: applicationsError } = await supabase
@@ -61,8 +75,6 @@ export function DeleteJobButton({ jobId, jobTitle, applicationCount = 0, hasAcce
     }
   }
 
-  const canDelete = !hasAcceptedApplications
-
   if (!showConfirmation) {
     return (
       <Button
@@ -70,7 +82,6 @@ export function DeleteJobButton({ jobId, jobTitle, applicationCount = 0, hasAcce
         variant="destructive"
         size="sm"
         className="flex items-center gap-2"
-        disabled={!canDelete}
       >
         <Trash2 className="w-4 h-4" />
         Delete Job
@@ -96,21 +107,12 @@ export function DeleteJobButton({ jobId, jobTitle, applicationCount = 0, hasAcce
             </div>
           )}
 
-          {hasAcceptedApplications && (
-            <div className="bg-red-100 border border-red-300 rounded-lg p-3 mb-3">
-              <p className="text-red-800 font-medium">⚠️ Cannot Delete</p>
-              <p className="text-red-700 text-sm">
-                This job has accepted applications. Please complete or cancel the job before deleting.
-              </p>
-            </div>
-          )}
-
           <div className="flex space-x-3">
             <Button
               onClick={handleDelete}
               variant="destructive"
               size="sm"
-              disabled={isDeleting || !canDelete}
+              disabled={isDeleting}
               className="flex items-center gap-2"
             >
               <Trash2 className="w-4 h-4" />

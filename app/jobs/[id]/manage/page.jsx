@@ -61,6 +61,11 @@ export default async function ManageJobPage({ params }) {
   const totalApplications = applications?.length || 0
   const acceptedApplications = applications?.filter(app => app.status === "accepted") || []
   const hasAcceptedApplications = acceptedApplications.length > 0
+  const acceptedWorkers = acceptedApplications.map(app => ({
+    full_name: app.profiles?.full_name || "Unknown",
+    rating: app.profiles?.rating || 0,
+    phone: app.profiles?.phone
+  }))
 
   return (
     <ToastProvider>
@@ -141,12 +146,14 @@ export default async function ManageJobPage({ params }) {
 
                   {/* Delete Job Section */}
                   <div className="pt-4 border-t border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-3">Danger Zone</h4>
+                    <h4 className="font-medium text-gray-900 mb-3">Job Management</h4>
                     <DeleteJobButton 
                       jobId={job.id}
                       jobTitle={job.title}
+                      jobStatus={job.status}
                       applicationCount={totalApplications}
                       hasAcceptedApplications={hasAcceptedApplications}
+                      acceptedWorkers={acceptedWorkers}
                     />
                   </div>
                 </CardContent>

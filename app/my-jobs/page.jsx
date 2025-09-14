@@ -26,7 +26,11 @@ export default async function MyJobsPage() {
     .select(`
       *,
       job_categories(name, icon, color),
-      job_applications(id, status)
+      job_applications(
+        id, 
+        status,
+        profiles!job_applications_worker_id_fkey(full_name, rating, phone)
+      )
     `)
     .eq("employer_id", user.id)
     .order("created_at", { ascending: false })
@@ -106,6 +110,11 @@ export default async function MyJobsPage() {
                 const totalApplications = job.job_applications?.length || 0
                 const acceptedApplications = job.job_applications?.filter(app => app.status === "accepted") || []
                 const hasAcceptedApplications = acceptedApplications.length > 0
+                const acceptedWorkers = acceptedApplications.map(app => ({
+                  full_name: app.profiles?.full_name || "Unknown",
+                  rating: app.profiles?.rating || 0,
+                  phone: app.profiles?.phone
+                }))
 
                 return (
                   <Card key={job.id} className="hover:shadow-md transition-shadow">
@@ -145,8 +154,10 @@ export default async function MyJobsPage() {
                             <DeleteJobButton 
                               jobId={job.id}
                               jobTitle={job.title}
+                              jobStatus={job.status}
                               applicationCount={totalApplications}
                               hasAcceptedApplications={hasAcceptedApplications}
+                              acceptedWorkers={acceptedWorkers}
                             />
                           </div>
                         </div>
