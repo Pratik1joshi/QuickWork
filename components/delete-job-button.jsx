@@ -31,8 +31,7 @@ export function DeleteJobButton({
         const { error: statusError } = await supabase
           .from("jobs")
           .update({ 
-            status: 'completed',
-            completed_at: new Date().toISOString()
+            status: 'completed'
           })
           .eq("id", jobId)
 

@@ -29,9 +29,7 @@ export function JobLifecycleManager({
       const { error } = await supabase
         .from("jobs")
         .update({ 
-          status: newStatus,
-          completed_at: newStatus === 'completed' ? new Date().toISOString() : null,
-          cancelled_at: newStatus === 'cancelled' ? new Date().toISOString() : null
+          status: newStatus
         })
         .eq("id", jobId)
 
